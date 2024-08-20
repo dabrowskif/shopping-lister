@@ -30,7 +30,8 @@
 			{#each shoppingLists as shoppingList, index}
 				<tr
 					class="cursor-pointer hover:bg-gray-100"
-					on:click={() => (window.location.href = routes.przepisy['[id]']._get(shoppingList.id))}
+					on:click={() =>
+						(window.location.href = routes['listy-zakupow']['[id]']._get(shoppingList.id))}
 				>
 					<th>{index + 1}</th>
 					<td>{shoppingList.name}</td>

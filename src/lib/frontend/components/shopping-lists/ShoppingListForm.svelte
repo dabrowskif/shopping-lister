@@ -5,14 +5,14 @@
 	import type {
 		CreateShoppingListDTO,
 		EditShoppingListDTO,
-		ShoppingList
+		GetShoppingListDTO
 	} from '$lib/server/modules/shopping-list/types';
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { routes } from '../../../../routes';
 
 	export let type: 'create' | 'edit';
 	export let data: {
-		shoppingList?: ShoppingList;
+		shoppingList?: GetShoppingListDTO;
 		form: SuperValidated<
 			CreateShoppingListDTO | EditShoppingListDTO,
 			string,
@@ -198,15 +198,15 @@
 			<table class="table w-full">
 				<thead>
 					<tr>
-						<th>Nazwa</th>
+						<th>Nazwa przepisu</th>
 						<th>Opcje</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each recipes as recipe}
-						<tr class="cursor-pointer hover:bg-gray-100">
-							<td>{recipe.name}</td>
-							<td>
+						<tr>
+							<td class="w-full">{recipe.name}</td>
+							<td class="flex gap-2">
 								<button
 									type="button"
 									aria-label="Add"

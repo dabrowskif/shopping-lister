@@ -1,15 +1,15 @@
 import type { Actions, PageServerLoad } from './$types';
 import { fail, message, superValidate } from 'sveltekit-superforms';
-import { error } from '@sveltejs/kit';
 import { editRecipeSchema } from '../../../lib/shared/schemas/recipes/edit-recipe.schema';
 import { zod } from 'sveltekit-superforms/adapters';
 import { recipeRepository } from '../../../lib/server/modules/recipe/repository';
+import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const recipe = recipeRepository.getRecipeById(params.id);
 
 	if (!recipe) {
-		error(404, 'not found');
+		error(404, 'Przepis nie istnieje');
 	}
 
 	const form = await superValidate(zod(editRecipeSchema), {

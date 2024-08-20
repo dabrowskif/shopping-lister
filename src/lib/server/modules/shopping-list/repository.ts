@@ -1,6 +1,11 @@
 import { generateFakeId } from '../../utils';
 import { fakeShoppingLists } from '../tests/mock-data';
-import type { ShoppingList, CreateShoppingListDTO, EditShoppingListDTO } from './types';
+import type {
+	ShoppingList,
+	CreateShoppingListDTO,
+	EditShoppingListDTO,
+	GetShoppingListDTO
+} from './types';
 
 const shoppingLists: ShoppingList[] = fakeShoppingLists;
 
@@ -21,15 +26,16 @@ class ShoppingListRepository {
 		return shoppingLists;
 	}
 
-	getShoppingListById(shoppingListId: string) {
+	getShoppingListById(shoppingListId: string): GetShoppingListDTO {
 		const shoppingList = shoppingLists.find((shopppingList) => shopppingList.id === shoppingListId);
 		if (!shoppingList) {
-			return null;
+			throw new Error('Nie znaleziono listy zakupów');
 		}
 
 		return {
 			id: shoppingList.id,
-			name: shoppingList.name
+			name: shoppingList.name,
+			ingredients: shoppingList.ingredients
 		};
 	}
 
