@@ -68,11 +68,52 @@
 			{ taint: false }
 		);
 	}
-	//
+
+	function removeRecipeIngredients(newIngredients: Ingredient[]) {
+		const currentIngredients = [...$form.ingredients];
+
+		newIngredients.map((newIngredient) => {
+			const existingIngredientIndex = currentIngredients.findIndex(
+				(ingredient) =>
+					ingredient.name === newIngredient.name && ingredient.unit === newIngredient.unit
+			);
+
+			if (existingIngredientIndex !== -1) {
+				const newValue =
+					Number(currentIngredients[existingIngredientIndex].quantity) -
+					Number(newIngredient.quantity);
+
+				if (newValue > 0) {
+					currentIngredients[existingIngredientIndex].quantity = String(newValue);
+				} else {
+					currentIngredients.splice(existingIngredientIndex, 1);
+				}
+			}
+		});
+
+		form.update(
+			($form) => {
+				$form.ingredients = currentIngredients.sort();
+				return $form;
+			},
+			{ taint: false }
+		);
+	}
+
 	function removeIngredient(index: number) {
 		form.update(
 			($form) => {
 				$form.ingredients = $form.ingredients.filter((_, i) => i !== index);
+				return $form;
+			},
+			{ taint: false }
+		);
+	}
+
+	function addIngredient() {
+		form.update(
+			($form) => {
+				$form.ingredients = [...$form.ingredients, { name: '', quantity: '', unit: '' }];
 				return $form;
 			},
 			{ taint: false }
@@ -126,7 +167,7 @@
 					{...$constraints.ingredients?.[index]?.unit}
 				/>
 				<button type="button" class="btn btn-error" on:click={() => removeIngredient(index)}>
-					Usuń
+					-
 				</button>
 			</div>
 			{#if $errors.ingredients?.[index]?.name}
@@ -138,7 +179,17 @@
 			{#if $errors.ingredients?.[index]?.unit}
 				<span class="text-error">{$errors.ingredients[index].unit}</span>
 			{/if}
+			{#if index === $form.ingredients.length - 1}
+				<button type="button" class="btn btn-success btn-outline" on:click={addIngredient}>
+					+
+				</button>
+			{/if}
 		{/each}
+		{#if $form.ingredients.length === 0}
+			<button type="button" class="btn btn-success btn-outline" on:click={addIngredient}>
+				+
+			</button>
+		{/if}
 	</div>
 
 	<div class="flex flex-col gap-2">
@@ -162,9 +213,19 @@
 									on:click|stopPropagation={() => {
 										addRecipeIngredients(recipe.ingredients);
 									}}
-									class="btn btn-ghost"
+									class="btn btn-success"
 								>
 									+
+								</button>
+								<button
+									type="button"
+									aria-label="Remove"
+									on:click|stopPropagation={() => {
+										removeRecipeIngredients(recipe.ingredients);
+									}}
+									class="btn btn-error"
+								>
+									-
 								</button>
 							</td>
 						</tr>

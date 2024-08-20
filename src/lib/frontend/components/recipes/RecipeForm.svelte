@@ -102,6 +102,11 @@
 				</button>
 			{/if}
 		{/each}
+		{#if $form.ingredients.length === 0}
+			<button type="button" class="btn btn-success btn-outline" on:click={addIngredient}>
+				+
+			</button>
+		{/if}
 	</div>
 
 	<div class="flex flex-col gap-5 text-center">
