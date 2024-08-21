@@ -2,17 +2,32 @@
 	import { invalidate } from '$app/navigation';
 	import DeleteIcon from '$lib/frontend/icons/DeleteIcon.svelte';
 	import type { GetRecipeDTO } from '$lib/server/modules/recipe/types';
+	import type { Maybe } from '$lib/shared/types/maybe';
 	import { routes } from '../../../../routes';
 
 	export let recipes: GetRecipeDTO[] = [];
-
+	$: {
+		if (recipes) {
+			recipeUnderDeletion = null;
+		}
+	}
+	let recipeUnderDeletion: Maybe<string> = null;
 	async function deleteRecipe(recipeId: string) {
-		const response = await fetch(routes.api.recipes['[id]']._get(recipeId), {
-			method: 'DELETE'
-		});
+		recipeUnderDeletion = recipeId;
+		try {
+			const response = await fetch(routes.api.recipes['[id]']._get(recipeId), {
+				method: 'DELETE'
+			});
 
-		if (response.ok) {
-			invalidate('recipes:list');
+			if (response.ok) {
+				invalidate('recipes:list');
+			} else {
+				recipeUnderDeletion = null;
+			}
+		} catch (error) {
+			// TODO: implement user feedback
+			console.error(error);
+			recipeUnderDeletion = null;
 		}
 	}
 </script>
@@ -38,11 +53,17 @@
 						<button
 							aria-label="Delete"
 							on:click|stopPropagation={() => {
-								deleteRecipe(recipe.id);
+								if (!recipeUnderDeletion) {
+									deleteRecipe(recipe.id);
+								}
 							}}
 							class="btn btn-ghost"
 						>
-							<DeleteIcon class="text-3xl text-red-500" />
+							{#if recipe.id === recipeUnderDeletion}
+								<span class="loading loading-spinner text-error" />
+							{:else}
+								<DeleteIcon class="text-3xl text-red-500" />
+							{/if}
 						</button>
 					</td>
 				</tr>

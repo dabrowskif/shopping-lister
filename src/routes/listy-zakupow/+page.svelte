@@ -5,7 +5,7 @@
 	export let data;
 </script>
 
-<div class="w-full space-y-5">
+<div class="w-full">
 	<ShoppingListList shoppingLists={data.shoppingLists} />
 	<a class="btn btn-primary" href={routes['dodaj-liste-zakupow']._get()}>Dodaj listę zakupów</a>
 </div>

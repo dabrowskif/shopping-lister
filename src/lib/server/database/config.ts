@@ -3,13 +3,16 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
 	dialect: 'postgresql',
 	schema: [
-		'src/lib/server/trpc/modules/**/*/table.ts',
-		'src/lib/server/trpc/modules/**/*/enums.ts'
+		// 'src/lib/server/database/schemas/*.ts',
+		'src/lib/server/database/tables/*.ts',
+		'src/lib/server/database/types/*.ts',
+		'src/lib/server/database/enums/*.ts'
 	],
-	out: 'src/lib/server/db/migrations',
+	out: 'src/lib/server/database/migrations',
 	dbCredentials: {
-		url: process.env.SUBABASE_DRIZZLE_DATABASE_CONN_STRING!
+		url: process.env.SUBABASE_DATABASE_CONN_STRING!
 	},
+	schemaFilter: ['shopping-lister'],
 	verbose: true,
 	strict: true
 });

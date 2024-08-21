@@ -22,7 +22,7 @@
 
 	let recipes: GetRecipeDTO[] = [];
 
-	async function fetchRecipes(params: URLSearchParams): Promise<GetRecipeDTO[]> {
+	async function fetchRecipes(params: URLSearchParams) {
 		const page = params.get('page');
 		let query = routes.api.recipes._get();
 
@@ -30,16 +30,18 @@
 			query += `page=${page}`;
 		}
 
-		return fetch(query).then((r) => r.json());
+		const response = await fetch(query);
+		recipes = await response.json();
 	}
 
 	$: if (browser) {
-		fetchRecipes($page.url.searchParams).then((fetchedRecipes) => (recipes = fetchedRecipes));
+		fetchRecipes($page.url.searchParams);
 	}
 
-	const { form, errors, constraints, message, enhance } = superForm(data.form, {
+	const { form, errors, constraints, message, enhance, delayed } = superForm(data.form, {
 		dataType: 'json',
-		resetForm: type === 'create'
+		resetForm: type === 'create',
+		delayMs: 0
 	});
 
 	function addRecipeIngredients(newIngredients: Ingredient[]) {
@@ -185,11 +187,11 @@
 				</button>
 			{/if}
 		{/each}
-		{#if $form.ingredients.length === 0}
-			<button type="button" class="btn btn-success btn-outline" on:click={addIngredient}>
-				+
-			</button>
-		{/if}
+		<!-- {#if $form.ingredients.length === 0} -->
+		<!-- 	<button type="button" class="btn btn-success btn-outline" on:click={addIngredient}> -->
+		<!-- 		+ -->
+		<!-- 	</button> -->
+		<!-- {/if} -->
 	</div>
 
 	<div class="flex flex-col gap-2">
@@ -236,8 +238,17 @@
 		</div>
 	</div>
 
-	<div class="text-center">
-		<button class="btn btn-primary w-full">Utwórz listę zakupów</button>
+	<div class="flex flex-col gap-5 text-center">
+		<button class="btn btn-primary w-full">
+			{#if $delayed}
+				<span class="loading loading-spinner" />
+			{/if}
+			{#if type === 'create'}
+				Utwórz
+			{:else}
+				Zapisz
+			{/if}
+		</button>
 	</div>
 
 	{#if $message}<h3 class="text-lg font-semibold text-success">{$message}</h3>{/if}

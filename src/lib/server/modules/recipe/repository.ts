@@ -1,70 +1,90 @@
-import { fakeRecipes } from '../tests/mock-data';
-import type { Recipe, CreateRecipeDTO, EditRecipeDTO, GetRecipeDTO } from './types';
-
-const recipes: Recipe[] = fakeRecipes;
+import { logger } from '../../../shared/logger/logger';
+import { db } from '../../database';
+import { recipesTable } from '../../database/tables/recipes.table';
+import type { AuthRequestCtx } from '../../types';
+import type { CreateRecipeDTO, EditRecipeDTO, GetRecipeDTO } from './types';
+import { and, eq } from 'drizzle-orm';
 
 class RecipeRepository {
-	createRecipe(createRecipeDTO: CreateRecipeDTO) {
-		const ownerId = 'fakeOwnerId';
-		const recipeId = generateFakeId();
-
-		const ingredients = createRecipeDTO.ingredients.map((ingredient) => ({
-			...ingredient
-		}));
-		recipes.push({
-			id: recipeId,
-			ownerId,
-			name: createRecipeDTO.name,
-			ingredients
+	async createRecipe(createRecipeDTO: CreateRecipeDTO, ctx: AuthRequestCtx): Promise<void> {
+		await db.insert(recipesTable).values({
+			ownerId: ctx.session.user.id,
+			ingredients: createRecipeDTO.ingredients,
+			name: createRecipeDTO.name
 		});
+
+		logger.debug('createRecipe', { createRecipeDTO });
 	}
 
-	getAllRecipes(params?: {
-		page?: number | undefined;
-		search?: string | undefined;
-	}): GetRecipeDTO[] {
-		return recipes.map((recipe) => ({
-			id: recipe.id,
-			name: recipe.name,
-			ingredients: recipe.ingredients
-		}));
+	async getAllRecipes(
+		params: {
+			page?: number | undefined;
+			search?: string | undefined;
+		},
+		ctx: AuthRequestCtx
+	): Promise<GetRecipeDTO[]> {
+		const recipes = await db
+			.select({
+				id: recipesTable.id,
+				name: recipesTable.name,
+				ingredients: recipesTable.ingredients
+			})
+			.from(recipesTable)
+			.where(eq(recipesTable.ownerId, ctx.session.user.id))
+			.offset(0)
+			.limit(10);
+
+		logger.debug('getAllRecipes', { params, recipes });
+
+		return recipes;
 	}
 
-	getRecipeById(recipeId: string): GetRecipeDTO {
-		const recipe = recipes.find((recipe) => recipe.id === recipeId);
-		if (!recipe) {
+	async getRecipeById(recipeId: string, ctx: AuthRequestCtx): Promise<GetRecipeDTO> {
+		const recipes = await db
+			.select({
+				id: recipesTable.id,
+				name: recipesTable.name,
+				ingredients: recipesTable.ingredients
+			})
+			.from(recipesTable)
+			.where(and(eq(recipesTable.ownerId, ctx.session.user.id), eq(recipesTable.id, recipeId)))
+			.limit(1);
+
+		logger.debug('getRecipeById', { recipeId, recipes });
+
+		if (!recipes[0]) {
 			throw new Error('Nie znaleziono przepisu');
 		}
 
-		return {
-			id: recipe.id,
-			name: recipe.name,
-			ingredients: recipe.ingredients
-		};
+		return recipes[0];
 	}
 
-	editRecipe(editRecipeDTO: EditRecipeDTO): void {
-		const recipeIndex = recipes.findIndex((recipe) => recipe.id === editRecipeDTO.id);
+	async editRecipe(editRecipeDTO: EditRecipeDTO, ctx: AuthRequestCtx): Promise<void> {
+		const recipes = await db
+			.update(recipesTable)
+			.set({ name: editRecipeDTO.name, ingredients: editRecipeDTO.ingredients })
+			.where(
+				and(eq(recipesTable.ownerId, ctx.session.user.id), eq(recipesTable.id, editRecipeDTO.id))
+			)
+			.returning({ updatedId: recipesTable.id });
 
-		if (recipeIndex !== -1) {
-			recipes[recipeIndex] = { ...recipes[recipeIndex], ...editRecipeDTO };
-		} else {
+		logger.debug('editRecipe', { editRecipeDTO, recipes });
+		if (!recipes[0]) {
 			throw new Error('Nie znaleziono przepisu');
 		}
 	}
 
-	removeRecipeById(recipeId: string): void {
-		const recipeIndex = recipes.findIndex((recipe) => recipe.id === recipeId);
-		if (recipeIndex !== -1) {
-			recipes.splice(recipeIndex, 1);
-		} else {
+	async removeRecipeById(recipeId: string, ctx: AuthRequestCtx): Promise<void> {
+		const recipes = await db
+			.delete(recipesTable)
+			.where(and(eq(recipesTable.ownerId, ctx.session.user.id), eq(recipesTable.id, recipeId)))
+			.returning({ updatedId: recipesTable.id });
+
+		logger.debug('removeRecipeById', { recipeId, recipes });
+
+		if (!recipes[0]) {
 			throw new Error('Nie znaleziono przepisu');
 		}
 	}
 }
-
-const generateFakeId = (
-	{ min = 0, max = 100000 }: { min?: number; max?: number } = { min: 0, max: 100000 }
-) => `${Math.floor(Math.random() * (max - min + 1)) + min}`;
-
 export const recipeRepository = new RecipeRepository();

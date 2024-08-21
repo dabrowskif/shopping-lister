@@ -3,6 +3,7 @@ import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createShoppingListSchema } from '../../lib/shared/schemas/shopping-lists/create-shopping-list.schema';
 import { shopppingListRepository } from '../../lib/server/modules/shopping-list/repository';
+import { getAuthRequestCtx } from '../../lib/server/utils';
 
 export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod(createShoppingListSchema), {
@@ -16,14 +17,16 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals: { requestCtx } }) => {
+		const authRequestCtx = getAuthRequestCtx(requestCtx);
+
 		const form = await superValidate(request, zod(createShoppingListSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 
-		shopppingListRepository.createShoppingList(form.data);
+		await shopppingListRepository.createShoppingList(form.data, authRequestCtx);
 
 		return message(form, 'Dodano listę zakupów');
 	}

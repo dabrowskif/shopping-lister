@@ -10,17 +10,25 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"generate-routes": "typed-routes -fr SvelteKit -d src/routes -od src -of routes.ts"
+		"generate-routes": "typed-routes -fr SvelteKit -d src/routes -od src -of routes.ts",
+		"db:migration:push": "drizzle-kit migrate --config ./src/lib/server/database/config.ts",
+		"db:migration:generate-all": "sh ./scripts/generate_migrations.sh",
+		"db:migration:generate-clean": "rm -rf ./src/lib/server/database/migrations && npm run db:migration:generate-schema",
+		"db:migration:generate-schema": "drizzle-kit generate --config ./src/lib/server/database/config.ts",
+		"db:studio": "npx drizzle-kit studio --config ./src/lib/database/config.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.9.0",
+		"@paralleldrive/cuid2": "^2.2.2",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "^9.6.0",
 		"@types/node": "^22.4.1",
 		"autoprefixer": "^10.4.20",
+		"chalk": "^5.3.0",
 		"daisyui": "^4.12.10",
+		"date-fns": "^3.6.0",
 		"drizzle-kit": "^0.24.0",
 		"drizzle-orm": "^0.33.0",
 		"eslint": "^9.0.0",
@@ -43,6 +51,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@dabrowskif/typed-routes": "^0.4.1"
+		"@dabrowskif/typed-routes": "^0.4.1",
+		"@supabase/ssr": "^0.5.0",
+		"@supabase/supabase-js": "^2.45.1"
 	}
 }

@@ -12,9 +12,10 @@
 	};
 	export let type: 'create' | 'edit';
 
-	const { form, errors, constraints, message, enhance } = superForm(data.form, {
+	const { form, errors, constraints, message, enhance, delayed } = superForm(data.form, {
 		dataType: 'json',
-		resetForm: type === 'create'
+		resetForm: type === 'create',
+		delayMs: 0
 	});
 
 	function addIngredient() {
@@ -111,6 +112,9 @@
 
 	<div class="flex flex-col gap-5 text-center">
 		<button class="btn btn-primary w-full">
+			{#if $delayed}
+				<span class="loading loading-spinner" />
+			{/if}
 			{#if type === 'create'}
 				Utwórz
 			{:else}

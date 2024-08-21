@@ -2,17 +2,34 @@
 	import { invalidate } from '$app/navigation';
 	import DeleteIcon from '$lib/frontend/icons/DeleteIcon.svelte';
 	import type { GetShoppingListDTO } from '$lib/server/modules/shopping-list/types';
+	import type { Maybe } from '$lib/shared/types/maybe';
 	import { routes } from '../../../../routes';
 
 	export let shoppingLists: GetShoppingListDTO[] = [];
 
-	async function deleteShoppingList(recipeId: string) {
-		const response = await fetch(routes.api['shopping-lists']['[id]']._get(recipeId), {
-			method: 'DELETE'
-		});
+	let shoppingListUnderDeletion: Maybe<string> = null;
+	$: {
+		if (shoppingLists) {
+			shoppingListUnderDeletion = null;
+		}
+	}
 
-		if (response.ok) {
-			invalidate('recipes:list');
+	async function deleteShoppingList(recipeId: string) {
+		shoppingListUnderDeletion = recipeId;
+		try {
+			const response = await fetch(routes.api['shopping-lists']['[id]']._get(recipeId), {
+				method: 'DELETE'
+			});
+
+			if (response.ok) {
+				invalidate('shopping-lists:list');
+			} else {
+				shoppingListUnderDeletion = null;
+			}
+		} catch (error) {
+			// TODO: implement user feedback
+			console.error(error);
+			shoppingListUnderDeletion = null;
 		}
 	}
 </script>
@@ -39,11 +56,17 @@
 						<button
 							aria-label="Delete"
 							on:click|stopPropagation={() => {
-								deleteShoppingList(shoppingList.id);
+								if (shoppingListUnderDeletion === null) {
+									deleteShoppingList(shoppingList.id);
+								}
 							}}
 							class="btn btn-ghost"
 						>
-							<DeleteIcon class="text-3xl text-red-500" />
+							{#if shoppingList.id === shoppingListUnderDeletion}
+								<span class="loading loading-spinner text-error" />
+							{:else}
+								<DeleteIcon class="text-3xl text-red-500" />
+							{/if}
 						</button>
 					</td>
 				</tr>
