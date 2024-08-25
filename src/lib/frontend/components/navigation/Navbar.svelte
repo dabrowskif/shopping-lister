@@ -53,7 +53,9 @@
 				{/if}
 			</ul>
 		</div>
-		<h1 class="text-xl">Przepisownia</h1>
+		{#if session}
+			<h1 class="text-xl">Przepisownia</h1>
+		{/if}
 	</div>
 	<div class="navbar-center hidden lg:flex">
 		<ul class="menu menu-horizontal px-1">
@@ -62,6 +64,8 @@
 				<li><a href={routes.przepisy._get()}>Twoje przepisy</a></li>
 				<li><a href={routes['dodaj-liste-zakupow']._get()}>Stwórz listę zakupów</a></li>
 				<li><a href={routes['listy-zakupow']._get()}>Twoje listy zakupów</a></li>
+			{:else}
+				<h1 class="text-xl">Przepisownia</h1>
 			{/if}
 		</ul>
 	</div>
@@ -70,8 +74,6 @@
 			Zalogowany jako
 			<span class="ms-2">{session.user.email}</span>
 			<button class="btn btn-outline ms-5" on:click={logout}>Wyloguj</button>
-		{:else}
-			<a class="btn btn-ghost" href={routes.logowanie._get()}>Logowanie</a>
 		{/if}
 	</div>
 </div>
