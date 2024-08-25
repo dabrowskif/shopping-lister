@@ -1,0 +1,9 @@
+name = "shopping-lister"
+compatibility_date = "2024-08-25"
+
+pages_build_output_dir = '.svelte-kit/cloudflare'
+compatibility_flags = [ "nodejs_compat", "nodejs_als" ]
+
+[vars]
+PUBLIC_SUPABASE_URL = "https://rstcxsgliqurmevtblrl.supabase.co"
+PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzdGN4c2dsaXF1cm1ldnRibHJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQxODE1MTYsImV4cCI6MjAzOTc1NzUxNn0.9jO3xCektqO6DQ0bCEt43oggLxyHQEd_LoAIHWMD6es"
