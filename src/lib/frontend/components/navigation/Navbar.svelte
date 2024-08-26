@@ -42,7 +42,7 @@
 					<li><a href={routes.przepisy._get()}>Twoje przepisy</a></li>
 					<li><a href={routes['dodaj-liste-zakupow']._get()}>Stwórz listę zakupów</a></li>
 					<li><a href={routes['listy-zakupow']._get()}>Twoje listy zakupów</a></li>
-					<hr class="divider" />
+					<div class="divider" />
 					<div>
 						<p>Zalogowany jako</p>
 						<p>{session.user.email}</p>
