@@ -1,13 +1,20 @@
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { logger } from '../../../shared/logger/logger';
-import { db } from '../../database';
+import { initDB } from '../../database';
 import { recipesTable } from '../../database/tables/recipes.table';
 import type { AuthRequestCtx } from '../../types';
 import type { CreateRecipeDTO, EditRecipeDTO, GetRecipeDTO } from './types';
 import { and, eq } from 'drizzle-orm';
 
-class RecipeRepository {
+export class RecipeRepository {
+	db: PostgresJsDatabase<Record<string, never>>;
+
+	constructor() {
+		this.db = initDB();
+	}
+
 	async createRecipe(createRecipeDTO: CreateRecipeDTO, ctx: AuthRequestCtx): Promise<void> {
-		await db.insert(recipesTable).values({
+		await this.db.insert(recipesTable).values({
 			ownerId: ctx.session.user.id,
 			ingredients: createRecipeDTO.ingredients,
 			name: createRecipeDTO.name
@@ -23,7 +30,7 @@ class RecipeRepository {
 		},
 		ctx: AuthRequestCtx
 	): Promise<GetRecipeDTO[]> {
-		const recipes = await db
+		const recipes = await this.db
 			.select({
 				id: recipesTable.id,
 				name: recipesTable.name,
@@ -40,7 +47,7 @@ class RecipeRepository {
 	}
 
 	async getRecipeById(recipeId: string, ctx: AuthRequestCtx): Promise<GetRecipeDTO> {
-		const recipes = await db
+		const recipes = await this.db
 			.select({
 				id: recipesTable.id,
 				name: recipesTable.name,
@@ -60,7 +67,7 @@ class RecipeRepository {
 	}
 
 	async editRecipe(editRecipeDTO: EditRecipeDTO, ctx: AuthRequestCtx): Promise<void> {
-		const recipes = await db
+		const recipes = await this.db
 			.update(recipesTable)
 			.set({ name: editRecipeDTO.name, ingredients: editRecipeDTO.ingredients })
 			.where(
@@ -75,7 +82,7 @@ class RecipeRepository {
 	}
 
 	async removeRecipeById(recipeId: string, ctx: AuthRequestCtx): Promise<void> {
-		const recipes = await db
+		const recipes = await this.db
 			.delete(recipesTable)
 			.where(and(eq(recipesTable.ownerId, ctx.session.user.id), eq(recipesTable.id, recipeId)))
 			.returning({ updatedId: recipesTable.id });
@@ -87,4 +94,3 @@ class RecipeRepository {
 		}
 	}
 }
-export const recipeRepository = new RecipeRepository();

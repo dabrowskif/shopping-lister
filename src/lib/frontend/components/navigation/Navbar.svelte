@@ -53,7 +53,7 @@
 				{/if}
 			</ul>
 		</div>
-		{#if session}
+		{#if !session}
 			<h1 class="text-xl">Przepisownia</h1>
 		{/if}
 	</div>

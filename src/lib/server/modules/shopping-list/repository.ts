@@ -1,17 +1,24 @@
-import { db } from '../../database';
 import { shoppingListsTable } from '../../database/tables/shopping-lists.table';
 import type { AuthRequestCtx } from '../../types';
 
 import { and, eq } from 'drizzle-orm';
 import type { CreateShoppingListDTO, EditShoppingListDTO, GetShoppingListDTO } from './types';
 import { logger } from '../../../shared/logger/logger';
+import { initDB } from '../../database';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
-class ShoppingListRepository {
+export class ShoppingListRepository {
+	db: PostgresJsDatabase<Record<string, never>>;
+
+	constructor() {
+		this.db = initDB();
+	}
+
 	async createShoppingList(
 		createShoppingListDTO: CreateShoppingListDTO,
 		ctx: AuthRequestCtx
 	): Promise<void> {
-		await db.insert(shoppingListsTable).values({
+		await this.db.insert(shoppingListsTable).values({
 			ownerId: ctx.session.user.id,
 			ingredients: createShoppingListDTO.ingredients,
 			name: createShoppingListDTO.name
@@ -27,7 +34,7 @@ class ShoppingListRepository {
 		},
 		ctx: AuthRequestCtx
 	): Promise<GetShoppingListDTO[]> {
-		const shoppingLists = await db
+		const shoppingLists = await this.db
 			.select({
 				id: shoppingListsTable.id,
 				name: shoppingListsTable.name,
@@ -47,7 +54,7 @@ class ShoppingListRepository {
 		shoppingListId: string,
 		ctx: AuthRequestCtx
 	): Promise<GetShoppingListDTO> {
-		const shoppingLists = await db
+		const shoppingLists = await this.db
 			.select({
 				id: shoppingListsTable.id,
 				name: shoppingListsTable.name,
@@ -75,7 +82,7 @@ class ShoppingListRepository {
 		editShoppingListDTO: EditShoppingListDTO,
 		ctx: AuthRequestCtx
 	): Promise<void> {
-		const shoppingLists = await db
+		const shoppingLists = await this.db
 			.update(shoppingListsTable)
 			.set({ name: editShoppingListDTO.name, ingredients: editShoppingListDTO.ingredients })
 			.where(
@@ -93,7 +100,7 @@ class ShoppingListRepository {
 	}
 
 	async removeShoppingListById(shoppingListId: string, ctx: AuthRequestCtx): Promise<void> {
-		const shoppingLists = await db
+		const shoppingLists = await this.db
 			.delete(shoppingListsTable)
 			.where(
 				and(
@@ -110,5 +117,3 @@ class ShoppingListRepository {
 		}
 	}
 }
-
-export const shopppingListRepository = new ShoppingListRepository();

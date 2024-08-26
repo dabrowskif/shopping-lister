@@ -1,9 +1,8 @@
 import { json } from '@sveltejs/kit';
-import { recipeRepository } from '../../../lib/server/modules/recipe/repository';
 import type { RequestHandler } from './$types';
 import { getRecipesSchema } from '../../../lib/shared/schemas/recipes/get-recipes.schema';
 import { getAuthRequestCtx } from '../../../lib/server/utils';
-import { logger } from '../../../lib/shared/logger/logger';
+import { RecipeRepository } from '../../../lib/server/modules/recipe/repository';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	const authRequestCtx = getAuthRequestCtx(locals.requestCtx);
@@ -19,7 +18,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 	const { page, search } = result.data;
 
-	const recipes = await recipeRepository.getAllRecipes(
+	const recipes = await new RecipeRepository().getAllRecipes(
 		{
 			page,
 			search

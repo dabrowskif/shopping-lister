@@ -2,8 +2,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createShoppingListSchema } from '../../lib/shared/schemas/shopping-lists/create-shopping-list.schema';
-import { shopppingListRepository } from '../../lib/server/modules/shopping-list/repository';
 import { getAuthRequestCtx } from '../../lib/server/utils';
+import { ShoppingListRepository } from '../../lib/server/modules/shopping-list/repository';
 
 export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod(createShoppingListSchema), {
@@ -26,7 +26,7 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		await shopppingListRepository.createShoppingList(form.data, authRequestCtx);
+		await new ShoppingListRepository().createShoppingList(form.data, authRequestCtx);
 
 		return message(form, 'Dodano listę zakupów');
 	}

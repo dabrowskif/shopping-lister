@@ -2,8 +2,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createRecipeSchema } from '../../lib/shared/schemas/recipes/create-recipe.schema';
-import { recipeRepository } from '../../lib/server/modules/recipe/repository';
 import { getAuthRequestCtx } from '../../lib/server/utils';
+import { RecipeRepository } from '../../lib/server/modules/recipe/repository';
 
 export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod(createRecipeSchema), {
@@ -26,7 +26,7 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		recipeRepository.createRecipe(form.data, authRequestCtx);
+		await new RecipeRepository().createRecipe(form.data, authRequestCtx);
 
 		return message(form, 'Dodano przepis');
 	}
