@@ -35,7 +35,7 @@
 			<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 			<ul
 				tabindex="0"
-				class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 border border-primary shadow-2xl"
+				class="menu menu-md dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 border border-primary shadow-2xl"
 			>
 				{#if session}
 					<li><a href={routes['dodaj-przepis']._get()}>Dodaj przepis</a></li>
@@ -73,7 +73,7 @@
 		{#if session}
 			<span>{session.user.email}</span>
 			<button
-				class="btn btn-outline ms-5"
+				class="btn btn-primary ms-5"
 				on:click={async () => {
 					await logout();
 				}}

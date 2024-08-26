@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { routes } from '../../routes.js';
 	import { goto } from '$app/navigation';
 	export let data;
 
@@ -10,7 +9,7 @@
 				provider: 'google',
 				token: response.credential
 			});
-			goto(routes['listy-zakupow']._get());
+			goto('/');
 		};
 	});
 </script>
