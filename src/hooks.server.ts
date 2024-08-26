@@ -3,6 +3,7 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { routes } from './routes';
 
 const supabase: Handle = async ({ event, resolve }) => {
 	/**
@@ -67,10 +68,12 @@ const loginRedirect: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	event.locals.user = user;
 
-	if (!event.locals.session && !event.url.pathname.startsWith('/logowanie')) {
+	if (!event.locals.session && !event.url.pathname.startsWith(routes.logowanie._get())) {
 		redirect(303, '/logowanie');
 	}
-
+	if (event.locals.session && event.url.pathname.startsWith(routes.logowanie._get())) {
+		redirect(303, '/');
+	}
 	return resolve(event);
 };
 
