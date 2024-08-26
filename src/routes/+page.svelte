@@ -1,5 +1,2 @@
-<script lang="ts">
-	export let data;
-</script>
-
-{data.message}
+<h1 class="text-3xl">Przepisownia</h1>
+<p>Dodawaj przepisy i twórz interaktywne listy zakupów</p>

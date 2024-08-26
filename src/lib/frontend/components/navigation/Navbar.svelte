@@ -7,8 +7,8 @@
 	export let session: Maybe<Session>;
 	export let supabase: Maybe<SupabaseClient>;
 
-	function logout() {
-		supabase?.auth.signOut();
+	async function logout() {
+		await supabase?.auth.signOut();
 		goto('/logowanie');
 	}
 </script>
@@ -44,17 +44,17 @@
 					<li><a href={routes['listy-zakupow']._get()}>Twoje listy zakupów</a></li>
 					<hr class="divider" />
 					<div>
-						Zalogowany jako
-						<span class="ms-2">{session.user.email}</span>
-						<button class="btn btn-outline" on:click={logout}>Wyloguj</button>
+						<p>Zalogowany jako</p>
+						<p>{session.user.email}</p>
+						<button class="btn btn-primary w-full mt-5" on:click={logout}>Wyloguj</button>
 					</div>
 				{:else}
-					<a class="btn btn-ghost" href={routes.logowanie._get()}>Logowanie</a>
+					<a class="btn btn-primary btn-outline" href={routes.logowanie._get()}>Logowanie</a>
 				{/if}
 			</ul>
 		</div>
-		{#if !session}
-			<h1 class="text-xl">Przepisownia</h1>
+		{#if session}
+			<a href="/">Przepisownia</a>
 		{/if}
 	</div>
 	<div class="navbar-center hidden lg:flex">
@@ -71,9 +71,15 @@
 	</div>
 	<div class="navbar-end hidden sm:flex">
 		{#if session}
-			Zalogowany jako
-			<span class="ms-2">{session.user.email}</span>
-			<button class="btn btn-outline ms-5" on:click={logout}>Wyloguj</button>
+			<span>{session.user.email}</span>
+			<button
+				class="btn btn-outline ms-5"
+				on:click={async () => {
+					await logout();
+				}}
+			>
+				Wyloguj
+			</button>
 		{/if}
 	</div>
 </div>
