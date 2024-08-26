@@ -1,9 +1,9 @@
 <script lang="ts">
 	import '../app.css';
 	import { invalidate } from '$app/navigation';
-	import { navigating } from '$app/stores';
 	import { onMount } from 'svelte';
 	import Navbar from '$lib/frontend/components/navigation/Navbar.svelte';
+	import ProgressBar from '$lib/frontend/components/navigation/ProgressBar.svelte';
 
 	export let data;
 	$: ({ session, supabase } = data);
@@ -20,9 +20,7 @@
 </script>
 
 <div>
-	{#if $navigating}
-		navigating to {$navigating.to?.url.pathname}
-	{/if}
+	<ProgressBar />
 	<Navbar {session} {supabase} />
 	<div class="flex flex-col justify-center items-center m-5 md:m-20">
 		<slot />
